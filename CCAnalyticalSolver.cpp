@@ -86,6 +86,21 @@ bool CCSolver::IsSaddlePointExists(Matrix mat)
 	return false;
 }
 
+void CCSolver::PrintStrategies()
+{
+	std::cout << "x: {";
+	for (const auto& strategy : firstPlayerStrategy) {
+		std::cout << std::fixed << std::setprecision(4) << strategy << " ";
+	}
+	std::cout << "}" << std::endl;
+
+	std::cout << "y: {";
+	for (const auto& strategy : secondPlayerStrategy) {
+		std::cout << std::fixed << std::setprecision(4) << strategy << " ";
+	}
+	std::cout << "}" << std::endl;
+}
+
 void CCSolver::PrintCurrentAnswer(Matrix &m)
 {
 	std::cout << "Game value: " 
@@ -114,7 +129,7 @@ void CCSolver::PrintMatrix(Matrix& m)
 {
 	for (const auto& row : m) {
 		for (const auto& element : row) {
-			std::cout << std::setw(8) << std::setprecision(4) << element << " ";
+			std::cout << std::setw(8) << std::fixed << std::setprecision(4) << element << " ";
 		}
 		std::cout << std::endl;
 	}
@@ -127,6 +142,8 @@ bool CCSolver::SolveWithBRMethod(Matrix mat, double error)
 	BrownRobinsonAlgorithm br(mat, 0.01);
 	br.iSolve();
 	saddlePointNum = br.iGetGameValue();
+	firstPlayerStrategy = *br.iGetFirstPlayerAnswer();
+	secondPlayerStrategy = *br.iGetSecondPlayerAnswer();
 
 	xNum = static_cast<double>(std::distance(br.iGetFirstPlayerAnswer()->begin(),
 		std::max_element(br.iGetFirstPlayerAnswer()->begin(), 
@@ -166,25 +183,30 @@ bool CCSolver::iSolveNumerical()
 	while (!dropout.recalculate(saddlePointNum)) {
 		Matrix mat = CreateWinningGrid(currentStep);
 		std::cout << "step #" << currentStep << ": " << std::endl;
-		if (!IsSaddlePointExists(mat)) {
-			std::cout << "No saddle point: " << std::endl;
-			SolveWithBRMethod(mat, 0.01);
-		}
 		PrintMatrix(mat);
+		if (!IsSaddlePointExists(mat)) {
+			std::cout << "No saddle point!!!! Solving with Brown-Robinson:" << std::endl;
+			SolveWithBRMethod(mat, 0.01);
+			PrintStrategies();
+		}
+		else {
+			std::cout << "Has saddle point" << std::endl;
+		}
+
 		PrintCurrentAnswer(mat);
 		currentStep++;
 	}
 	std::cout << "Dropout happened!" << std::endl;
 	std::cout << "For " << dropout.getCountToDrop()
 		<< " iterations game value diff is less than " << dropout.getDiff()
-		<< std::endl;
+		<< std::endl << std::endl;
 	std::cout << "Answer:" << std::endl;
 	std::cout << "Game value: "
 		<< std::setprecision(4)
-		<< saddlePointNum << std::endl;
+		<< saddlePoint << std::endl;
 
-	std::cout << "x: " << xNum << std::endl;
-	std::cout << "y: " << yNum << std::endl << std::endl;
+	std::cout << "x: " << x << std::endl;
+	std::cout << "y: " << y << std::endl << std::endl;
 
 	return false;
 }

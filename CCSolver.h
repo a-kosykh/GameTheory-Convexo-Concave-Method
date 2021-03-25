@@ -36,6 +36,7 @@ private:
 	bool	IsSaddlePointExists(Matrix mat);
 	bool	SolveWithBRMethod(Matrix mat, double error);
 	void	PrintCurrentAnswer(Matrix& mat);
+	void	PrintStrategies();
 
 	Dropout dropout;
 

@@ -72,6 +72,18 @@ InputData ReadFromFile(std::string filename) {
 	return inputData;
 }
 
+void printInitialData(InputData data) {
+	std::cout << "Kosykh A.M. IU8-104. Lab2. Variant 5" << std::endl;
+	std::cout << "a = " << data.a << std::endl;
+	std::cout << "b = " << data.b << std::endl;
+	std::cout << "c = " << data.c << std::endl;
+	std::cout << "d = " << data.d << std::endl;
+	std::cout << "e = " << data.e << std::endl;
+	std::cout << "Diff to drop = " << data.diff << std::endl;
+	std::cout << "Count to drop = " << data.countToDrop
+		<< std::endl << std::endl;
+}
+
 int main(int argc, char* argv[]) {
 	InputData data = ReadFromFile(argv[1]);
 	
@@ -84,6 +96,9 @@ int main(int argc, char* argv[]) {
 		(data.e),
 		dropout
 	);
+
+	printInitialData(data);
+
 	if (!solver.iSolveAnalytical()) {
 		return 1;
 	}
