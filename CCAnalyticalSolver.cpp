@@ -78,22 +78,24 @@ bool CCSolver::IsSaddlePointExists(Matrix mat)
 
 	if (minMax == maxMin) {
 		saddlePointNum = minMax;
-		xNum = (minMax / mat.size());
-		yNum = (maxMin / mat.size());
-		firstPlayerStrategy = {}; // TODO
-		secondPlayerStrategy = {}; // TODO
+		xNum = (static_cast<double>(maxMinIndex) / (mat.size() - 1));
+		yNum = (static_cast<double>(minMaxIndex) / (mat.size() - 1));
 		return true;
 	}
 
 	return false;
 }
 
-void CCSolver::PrintCurrentAnswer()
+void CCSolver::PrintCurrentAnswer(Matrix &m)
 {
 	std::cout << "Game value: " 
 		<< std::setprecision(4) 
 		<< saddlePointNum << std::endl;
+
+	std::cout << "x: " << xNum << std::endl;
+	std::cout << "y: " << yNum << std::endl << std::endl;
 	
+	/*
 	std::cout << "x: {";
 	for (const auto& strategy : firstPlayerStrategy) {
 		std::cout << std::setprecision(2) << strategy << " ";
@@ -105,14 +107,14 @@ void CCSolver::PrintCurrentAnswer()
 		std::cout << std::setprecision(2) << strategy << " ";
 	}
 	std::cout << "}" << std::endl << std::endl;
-
+	*/
 }
 
 void CCSolver::PrintMatrix(Matrix& m)
 {
 	for (const auto& row : m) {
 		for (const auto& element : row) {
-			std::cout << std::setprecision(4) << element << " ";
+			std::cout << std::setw(8) << std::setprecision(4) << element << " ";
 		}
 		std::cout << std::endl;
 	}
@@ -125,14 +127,29 @@ bool CCSolver::SolveWithBRMethod(Matrix mat, double error)
 	BrownRobinsonAlgorithm br(mat, 0.01);
 	br.iSolve();
 	saddlePointNum = br.iGetGameValue();
-	firstPlayerStrategy = *br.iGetFirstPlayerAnswer();
-	secondPlayerStrategy = *br.iGetSecondPlayerAnswer();
+
+	xNum = static_cast<double>(std::distance(br.iGetFirstPlayerAnswer()->begin(),
+		std::max_element(br.iGetFirstPlayerAnswer()->begin(), 
+			br.iGetFirstPlayerAnswer()->end()))) / (mat.size() - 1);
+	yNum = static_cast<double>(std::distance(br.iGetSecondPlayerAnswer()->begin(),
+		std::max_element(br.iGetSecondPlayerAnswer()->begin(),
+			br.iGetSecondPlayerAnswer()->end()))) / (mat.size() - 1);
 
 	return true;
 }
 
 bool CCSolver::iSolveAnalytical()
 {
+	if (!CheckDerivative(a, b)) {
+		std::cout << "Second derivative is NOT ok!!" << std::endl;
+		return false;
+	}
+	else {
+		std::cout << "Checking 2nd derivative: " << std::endl;
+		std::cout << "Hxx = " << 2 * a << " < 0" << std::endl;
+		std::cout << "Hyy = " << 2 * b << " > 0" << std::endl;
+		std::cout << "Game is convexo-concave!" << std::endl;
+	}
 	y = GetY();
 	x = GetX(y);
 	saddlePoint = GetSaddlePoint(x, y);
@@ -154,13 +171,21 @@ bool CCSolver::iSolveNumerical()
 			SolveWithBRMethod(mat, 0.01);
 		}
 		PrintMatrix(mat);
-		PrintCurrentAnswer();
+		PrintCurrentAnswer(mat);
 		currentStep++;
 	}
 	std::cout << "Dropout happened!" << std::endl;
 	std::cout << "For " << dropout.getCountToDrop()
 		<< " iterations game value diff is less than " << dropout.getDiff()
 		<< std::endl;
+	std::cout << "Answer:" << std::endl;
+	std::cout << "Game value: "
+		<< std::setprecision(4)
+		<< saddlePointNum << std::endl;
+
+	std::cout << "x: " << xNum << std::endl;
+	std::cout << "y: " << yNum << std::endl << std::endl;
+
 	return false;
 }
 

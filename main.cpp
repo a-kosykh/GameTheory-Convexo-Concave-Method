@@ -84,7 +84,9 @@ int main(int argc, char* argv[]) {
 		(data.e),
 		dropout
 	);
-	solver.iSolveAnalytical();
+	if (!solver.iSolveAnalytical()) {
+		return 1;
+	}
 	solver.iPrintAnswerAnalytical();
 
 	std::cout << std::endl;

@@ -35,7 +35,7 @@ private:
 	Matrix	CreateWinningGrid(int size);
 	bool	IsSaddlePointExists(Matrix mat);
 	bool	SolveWithBRMethod(Matrix mat, double error);
-	void	PrintCurrentAnswer();
+	void	PrintCurrentAnswer(Matrix& mat);
 
 	Dropout dropout;
 
